@@ -6,6 +6,7 @@ import {
   createWebHistory,
 } from 'vue-router';
 import routes from './routes';
+import useAuthUser from 'src/composables/UseAuthUser';
 
 /*
  * If not building with SSR mode, you can
@@ -30,6 +31,26 @@ export default defineRouter(function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     history: createHistory(process.env.VUE_ROUTER_BASE),
   });
+
+  Router.beforeEach((to) => {
+    const { isLoggedIn } = useAuthUser()
+
+    if (
+      to.hash.includes('type=recovery') &&
+      to.name !== 'reset-password'
+    ) {
+      const accessToken = to.hash.split('&')[0]
+      const token = accessToken?.replace('#access_token=', '')
+      return { name: 'reset-password', query: { token } }
+    }
+    if (
+      !isLoggedIn() &&
+      to.meta.requiresAuth &&
+      !Object.keys(to.query).includes('fromEmail')
+    ) {
+      return { name: 'login' }
+    }
+  })
 
   return Router;
 });
