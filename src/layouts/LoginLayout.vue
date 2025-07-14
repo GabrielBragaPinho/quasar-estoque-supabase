@@ -23,7 +23,16 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
+import useApi from 'src/composables/UseApi';
+
+const { getBrand } = useApi()
+
 defineOptions({
   name: 'LoginLayout'
+})
+
+onMounted(() => {
+  getBrand()
 })
 </script>
